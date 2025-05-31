@@ -14,7 +14,9 @@ import {
   alpha,
   Stack,
   Divider,
-  IconButton
+  IconButton,
+  Paper,
+  TextField
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { 
@@ -43,6 +45,14 @@ const FEATURE_IMAGES = [
 const ABOUT_IMAGE = 'https://images.unsplash.com/photo-1527525443983-6e60c75fff46?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1465&q=80';
 
 // Styled Components
+const AnimatedButton = styled(Button)({
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 7px 14px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08)'
+  }
+});
+
 const HeroSection = styled(Box)(({ theme }) => ({
   minHeight: '90vh',
   display: 'flex',
@@ -88,14 +98,6 @@ const FeatureCard = styled(Card)(({ theme }) => ({
 const FeatureImage = styled(CardMedia)({
   height: 200,
   transition: 'transform 0.5s ease',
-});
-
-const AnimatedButton = styled(Button)({
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-3px)',
-    boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
-  },
 });
 
 const StatCard = styled(Box)(({ theme }) => ({
