@@ -3,6 +3,12 @@
   publish = "frontend/build"
   command = "cd frontend && npm install && npm run build"
 
+[build.environment]
+  NODE_VERSION = "18.0.0"
+  NPM_VERSION = "9.0.0"
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsucGxhbm5vdmEuY28udWsk"
+  CLERK_SECRET_KEY = "sk_live_1kDs8NO0JXhlLtjWa4Wil447PDT3cIIN8WLvc1bDRI"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
