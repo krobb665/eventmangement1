@@ -25,72 +25,6 @@ export const WebSocketProvider = ({ children, token }) => {
   const reconnectTimeout = useRef(null);
   const dispatch = useDispatch();
 
-  // Initialize WebSocket connection
-  const connectWebSocket = useCallback(async (authToken) => {
-    if (!authToken) {
-      console.log('No auth token provided, skipping WebSocket connection');
-      return;
-    }
-
-    console.log('Connecting WebSocket with token');
-
-    // Disconnect existing connection if any
-    if (socketRef.current) {
-      console.log('Disconnecting existing WebSocket connection');
-      socketRef.current.disconnect();
-      socketRef.current = null;
-      setIsConnected(false);
-    }
-
-    try {
-      // Create new socket connection
-      const socket = io(process.env.REACT_APP_WS_URL || 'http://localhost:5000', {
-        auth: { token: authToken },
-        transports: ['websocket'],
-        reconnection: false, // We'll handle reconnection manually
-      });
-
-      socket.on('connect', () => {
-        console.log('WebSocket connected');
-        setIsConnected(true);
-        reconnectAttempts.current = 0; // Reset reconnect attempts on successful connection
-      });
-
-      socket.on('disconnect', (reason) => {
-        console.log('WebSocket disconnected:', reason);
-        setIsConnected(false);
-        
-        // Attempt to reconnect if this wasn't a manual disconnection
-        if (reason !== 'io client disconnect') {
-          attemptReconnect(authToken);
-        }
-      });
-
-      socket.on('connect_error', (error) => {
-        console.error('WebSocket connection error:', error);
-        setIsConnected(false);
-        attemptReconnect(authToken);
-      });
-
-      // Handle notifications from server
-      socket.on('notification', (data) => {
-        dispatch(
-          addNotification({
-            type: data.type || 'info',
-            message: data.message,
-            autoHideDuration: data.autoHideDuration || 5000,
-          })
-        );
-      });
-
-      socketRef.current = socket;
-      return socket;
-    } catch (error) {
-      console.error('Error initializing WebSocket:', error);
-      attemptReconnect(authToken);
-    }
-  }, [dispatch]);
-
   // Attempt to reconnect with exponential backoff
   const attemptReconnect = useCallback((authToken) => {
     if (reconnectAttempts.current >= maxReconnectAttempts) {
@@ -103,9 +37,77 @@ export const WebSocketProvider = ({ children, token }) => {
     
     reconnectTimeout.current = setTimeout(() => {
       reconnectAttempts.current++;
-      connectWebSocket(authToken);
+      
+      // Reconnect logic
+      try {
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+        }
+
+        const socket = io(process.env.REACT_APP_API_URL || 'http://localhost:5000', {
+          auth: { token: authToken },
+          transports: ['websocket'],
+          reconnection: false,
+        });
+
+        socket.on('connect', () => {
+          console.log('WebSocket connected');
+          setIsConnected(true);
+          reconnectAttempts.current = 0;
+          if (reconnectTimeout.current) {
+            clearTimeout(reconnectTimeout.current);
+            reconnectTimeout.current = null;
+          }
+        });
+
+        socket.on('disconnect', (reason) => {
+          console.log('WebSocket disconnected:', reason);
+          setIsConnected(false);
+          
+          // Attempt to reconnect if this wasn't a manual disconnection
+          if (reason === 'io server disconnect') {
+            // The disconnection was initiated by the server, we need to reconnect manually
+            socket.connect();
+          } else if (reason !== 'io client disconnect') {
+            // Otherwise, attempt to reconnect with backoff
+            attemptReconnect(authToken);
+          }
+        });
+
+        socket.on('connect_error', (error) => {
+          console.error('WebSocket connection error:', error);
+          setIsConnected(false);
+          attemptReconnect(authToken);
+        });
+
+        // Handle notifications from server
+        socket.on('notification', (data) => {
+          dispatch(
+            addNotification({
+              type: data.type || 'info',
+              message: data.message,
+              autoHideDuration: data.autoHideDuration || 5000,
+            })
+          );
+        });
+
+        socketRef.current = socket;
+      } catch (error) {
+        console.error('Error initializing WebSocket:', error);
+        attemptReconnect(authToken);
+      }
     }, delay);
-  }, [connectWebSocket, maxReconnectAttempts]);
+  }, [dispatch, maxReconnectAttempts]);
+
+  // Connect WebSocket with authentication
+  const connectWebSocket = useCallback((authToken) => {
+    if (!authToken) {
+      console.log('No auth token provided, skipping WebSocket connection');
+      return;
+    }
+    console.log('Connecting WebSocket with token');
+    attemptReconnect(authToken);
+  }, [attemptReconnect]);
 
   // Connect on mount and when token changes
   useEffect(() => {

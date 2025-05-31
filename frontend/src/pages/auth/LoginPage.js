@@ -13,8 +13,7 @@ import {
   Alert,
   Divider,
   Link as MuiLink,
-  Container,
-  Paper,
+  Container
 } from '@mui/material';
 import { Visibility, VisibilityOff, Google as GoogleIcon } from '@mui/icons-material';
 import { useSignIn, useAuth } from '@clerk/clerk-react';

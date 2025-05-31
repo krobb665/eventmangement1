@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useUser, useClerk } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
 import { 
   Box, 
   Typography, 
@@ -30,7 +29,6 @@ import {
 const ProfilePage = () => {
   const { user, isLoaded } = useUser();
   const { openUserProfile } = useClerk();
-  const navigate = useNavigate();
   
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

@@ -21,7 +21,7 @@ const ResetPasswordPage = () => {
   const navigate = useNavigate();
   const { isLoaded, signIn } = useSignIn();
   
-  const [email, setEmail] = useState(location.state?.email || '');
+  const [email] = useState(location.state?.email || '');
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');

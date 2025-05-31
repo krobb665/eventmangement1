@@ -17,9 +17,7 @@ import {
   Event as EventIcon,
   People as PeopleIcon,
   Assignment as TaskIcon,
-  Store as VendorIcon,
-  Receipt as BudgetIcon,
-  BarChart as ReportIcon
+  Store as VendorIcon
 } from '@mui/icons-material';
 
 const DashboardPage = () => {

@@ -45,7 +45,7 @@ const validationSchema = Yup.object({
 const RegisterPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signUp, isLoaded } = useSignUp();
+  const { signUp } = useSignUp();
   const { signIn: clerkSignIn } = useSignIn();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
