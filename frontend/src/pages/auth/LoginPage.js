@@ -12,8 +12,7 @@ import {
   CircularProgress,
   Alert,
   Divider,
-  Link as MuiLink,
-  Container
+  Link as MuiLink
 } from '@mui/material';
 import { Visibility, VisibilityOff, Google as GoogleIcon } from '@mui/icons-material';
 import { useSignIn, useAuth } from '@clerk/clerk-react';

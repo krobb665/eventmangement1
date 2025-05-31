@@ -15,7 +15,7 @@ const VerifyEmailPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { signUp, isLoaded: isSignUpLoaded, setActive } = useSignUp();
-  const { signIn, isLoaded: isSignInLoaded } = useSignIn();
+  const { isLoaded: isSignInLoaded } = useSignIn();
   
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
