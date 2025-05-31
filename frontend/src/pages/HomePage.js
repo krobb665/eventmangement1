@@ -24,7 +24,6 @@ import {
   People as PeopleIcon, 
   Restaurant as RestaurantIcon,
   CheckCircle as CheckCircleIcon,
-  CalendarToday as CalendarIcon,
   Email as EmailIcon,
   Phone as PhoneIcon,
   LocationOn as LocationIcon,

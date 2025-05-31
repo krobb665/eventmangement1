@@ -5,7 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { Provider } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ClerkProvider, SignedIn, SignedOut, useAuth as useClerkAuth } from '@clerk/clerk-react';
+import { ClerkProvider, SignedIn } from '@clerk/clerk-react';
 
 // Store
 import store from './store/store';
@@ -175,12 +175,6 @@ const ProtectedRoute = ({ children }) => {
       </WebSocketManager>
     </SignedIn>
   );
-};
-
-// Public Route Component (for public pages)
-const PublicRoute = ({ children }) => {
-  // Show public content regardless of auth state
-  return <>{children}</>;
 };
 
 // Auth Layout Wrapper

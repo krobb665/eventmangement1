@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useUser, useClerk } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { 
   Box, 
   Typography, 
@@ -17,42 +15,14 @@ import {
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
-  ListItemIcon,
+  Avatar,
   IconButton,
   Menu,
   MenuItem,
   Snackbar,
-  Alert,
-  CircularProgress,
-  InputAdornment,
-  Collapse,
-  Card,
-  CardHeader,
-  CardContent,
-  CardActions,
-  Grid,
-  Avatar,
-  Tooltip
+  Alert
 } from '@mui/material';
-import {
-  Notifications as NotificationsIcon,
-  Language as LanguageIcon,
-  Security as SecurityIcon,
-  Payment as BillingIcon,
-  Delete as DeleteIcon,
-  Logout as LogoutIcon,
-  Email as EmailIcon,
-  Phone as PhoneIcon,
-  Lock as LockIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-  Check as CheckIcon,
-  Close as CloseIcon,
-  ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon,
-  Palette as PaletteIcon,
-  MoreVert as MoreVertIcon
-} from '@mui/icons-material';
+import { Delete as DeleteIcon, MoreVert as MoreVertIcon } from '@mui/icons-material';
 
 const SettingsPage = () => {
   const [tabValue, setTabValue] = useState(0);

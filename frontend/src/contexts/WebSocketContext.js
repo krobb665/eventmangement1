@@ -105,7 +105,7 @@ export const WebSocketProvider = ({ children, token }) => {
       reconnectAttempts.current++;
       connectWebSocket(authToken);
     }, delay);
-  }, [connectWebSocket]);
+  }, [connectWebSocket, maxReconnectAttempts]);
 
   // Connect on mount and when token changes
   useEffect(() => {

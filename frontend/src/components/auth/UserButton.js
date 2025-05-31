@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser, useClerk, useAuth } from '@clerk/clerk-react';
+import { useUser, useClerk } from '@clerk/clerk-react';
 import {
   Avatar,
   Box,
@@ -22,7 +22,6 @@ import {
 const UserButton = () => {
   const { user } = useUser();
   const { signOut } = useClerk();
-  const { getToken } = useAuth();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
