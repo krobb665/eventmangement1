@@ -1,75 +1,66 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import { 
   Box, 
   Button, 
   Container, 
   Typography, 
   Grid, 
-  Card, 
-  CardContent,
-  CardMedia,
   useTheme,
   useMediaQuery,
-  alpha,
   Stack,
+  Card,
+  CardContent,
+  CardMedia,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
   Divider,
+  TextField,
+  InputAdornment,
   IconButton,
   Paper,
-  TextField
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { 
-  Event as EventIcon, 
-  People as PeopleIcon, 
-  Restaurant as RestaurantIcon,
+  ArrowForward as ArrowForwardIcon,
+  Star as StarIcon,
   CheckCircle as CheckCircleIcon,
+  PlayCircle as PlayCircleIcon,
+  Person as PersonIcon,
+  People as PeopleIcon,
+  BarChart as BarChartIcon,
   Email as EmailIcon,
   Phone as PhoneIcon,
-  LocationOn as LocationIcon,
-  Facebook as FacebookIcon,
-  Twitter as TwitterIcon,
-  Instagram as InstagramIcon,
-  LinkedIn as LinkedInIcon,
-  ArrowForward as ArrowForwardIcon
+  ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
 
-// Unsplash Image URLs
-const HERO_IMAGE = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80';
-const FEATURE_IMAGES = [
-  'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
-  'https://images.unsplash.com/photo-1531058020387-3be344556be6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
-  'https://images.unsplash.com/photo-1519671482749-5f87a9f776ed?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'
-];
-
 // Styled Components
-const AnimatedButton = styled(Button)({
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: '0 7px 14px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08)'
-  }
-});
-
 const HeroSection = styled(Box)(({ theme }) => ({
   minHeight: '90vh',
   display: 'flex',
   alignItems: 'center',
+  background: 'linear-gradient(135deg, #1a237e 0%, #283593 100%)',
+  color: theme.palette.common.white,
+  padding: theme.spacing(8, 0),
   position: 'relative',
   overflow: 'hidden',
   '&::before': {
     content: '""',
     position: 'absolute',
     top: 0,
-    left: 0,
     right: 0,
     bottom: 0,
-    background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.9)} 0%, ${alpha(theme.palette.primary.dark, 0.9)} 100%)`,
+    left: 0,
+    background: 'url(https://www.vfairs.com/hubfs/Backgrounds/hero-bg-2.png)',
+    backgroundSize: 'cover',
+    opacity: 0.1,
     zIndex: 1,
-  },
-  [theme.breakpoints.down('md')]: {
-    minHeight: 'auto',
-    padding: '100px 0',
   },
 }));
 
@@ -77,190 +68,209 @@ const FeatureCard = styled(Card)(({ theme }) => ({
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  transition: 'all 0.3s ease-in-out',
+  transition: 'transform 0.3s, box-shadow 0.3s',
+  border: 'none',
+  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)',
   borderRadius: theme.shape.borderRadius * 2,
   overflow: 'hidden',
-  boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
   '&:hover': {
-    transform: 'translateY(-10px)',
-    boxShadow: '0 16px 40px rgba(0,0,0,0.12)',
-    '& .feature-image': {
-      transform: 'scale(1.05)',
-    },
-    '& .MuiCardContent-root': {
-      backgroundColor: theme.palette.background.paper,
-    },
+    transform: 'translateY(-8px)',
+    boxShadow: '0 16px 32px rgba(0, 0, 0, 0.15)',
   },
 }));
 
-const FeatureImage = styled(CardMedia)({
-  height: 200,
-  transition: 'transform 0.5s ease',
-});
+const FeatureIcon = styled(Box)(({ theme }) => ({
+  width: 64,
+  height: 64,
+  borderRadius: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: theme.spacing(3),
+  background: 'linear-gradient(135deg, #3f51b5 0%, #1a237e 100%)',
+  color: 'white',
+  '& svg': {
+    fontSize: 32,
+  },
+}));
 
-const StatCard = styled(Box)(({ theme }) => ({
-  textAlign: 'center',
-  padding: theme.spacing(4, 2),
+const StyledAccordion = styled(Accordion)(({ theme }) => ({
+  boxShadow: 'none',
+  border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.shape.borderRadius * 2,
-  backgroundColor: alpha(theme.palette.primary.main, 0.05),
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-5px)',
-    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+  marginBottom: theme.spacing(2),
+  '&:before': {
+    display: 'none',
+  },
+  '&.Mui-expanded': {
+    margin: theme.spacing(1, 0),
+  },
+}));
+
+const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
+  padding: theme.spacing(2, 3),
+  '&.Mui-expanded': {
+    minHeight: 56,
+  },
+  '& .MuiAccordionSummary-content': {
+    margin: theme.spacing(1, 0),
+    '&.Mui-expanded': {
+      margin: theme.spacing(1, 0),
+    },
   },
 }));
 
 const HomePage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { isSignedIn } = useAuth();
+  const navigate = useNavigate();
+  
+  // State for accordion expansion
+  const [expanded, setExpanded] = React.useState(false);
+  
+  const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+
+  const handleGetStarted = () => {
+    if (isSignedIn) {
+      navigate('/dashboard');
+    } else {
+      navigate('/sign-up');
+    }
+  };
+
+  const handleDemoRequest = (e) => {
+    e.preventDefault();
+    // Handle demo request submission
+    console.log('Demo requested');
+  };
 
   const features = [
     {
-      image: FEATURE_IMAGES[0],
-      icon: <EventIcon fontSize="large" color="primary" />,
-      title: 'Event Planning',
-      description: 'Create and manage all your events in one place. Keep track of important dates, venues, and attendees with our intuitive dashboard.'
+      icon: <PeopleIcon />,
+      title: 'Virtual & Hybrid Events',
+      description: 'Host engaging virtual and hybrid events with our immersive platform that connects audiences worldwide.'
     },
     {
-      image: FEATURE_IMAGES[1],
-      icon: <PeopleIcon fontSize="large" color="primary" />,
-      title: 'Guest Management',
-      description: 'Easily manage your guest lists, send beautiful invitations, and track RSVPs in real-time with our comprehensive tools.'
+      icon: <BarChartIcon />,
+      title: 'Powerful Analytics',
+      description: 'Get real-time insights and comprehensive analytics to measure your event success.'
     },
     {
-      image: FEATURE_IMAGES[2],
-      icon: <RestaurantIcon fontSize="large" color="primary" />,
-      title: 'Vendor Coordination',
-      description: 'Connect with trusted vendors, manage contracts, and keep all your event details organized in one place.'
-    }
+      icon: <PersonIcon />,
+      title: 'Networking Tools',
+      description: 'Foster meaningful connections with AI-powered matchmaking and networking features.'
+    },
   ];
 
-  const stats = [
-    { value: '10,000+', label: 'Events Planned', icon: <EventIcon color="primary" fontSize="large" /> },
-    { value: '500+', label: 'Happy Clients', icon: <PeopleIcon color="primary" fontSize="large" /> },
-    { value: '24/7', label: 'Support', icon: <CheckCircleIcon color="primary" fontSize="large" /> },
-    { value: '50+', label: 'Cities', icon: <LocationIcon color="primary" fontSize="large" /> }
-  ];
-
-  const socialLinks = [
-    { icon: <FacebookIcon />, url: '#' },
-    { icon: <TwitterIcon />, url: '#' },
-    { icon: <InstagramIcon />, url: '#' },
-    { icon: <LinkedInIcon />, url: '#' },
+  const faqs = [
+    {
+      question: 'What types of events can I host?',
+      answer: 'Our platform supports conferences, trade shows, career fairs, product launches, corporate meetings, and more.'
+    },
+    {
+      question: 'Do you offer custom branding?',
+      answer: 'Yes, our platform is fully customizable to match your brand identity, including colors, logos, and messaging.'
+    },
+    {
+      question: 'How does the pricing work?',
+      answer: 'We offer flexible pricing based on your event size and requirements. Contact us for a personalized quote.'
+    },
   ];
 
   return (
-    <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-      {/* Add global styles for smooth scrolling */}
-      <style jsx global>{`
-        html {
-          scroll-behavior: smooth;
-        }
-      `}</style>
+    <Box>
       {/* Hero Section */}
       <HeroSection>
-        <Box
-          component="img"
-          src={HERO_IMAGE}
-          alt="Event Management"
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            zIndex: 0,
-          }}
-        />
-        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, py: 8 }}>
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
               <Typography 
                 variant={isMobile ? 'h3' : 'h2'} 
                 component="h1" 
+                fontWeight={700}
                 gutterBottom
                 sx={{
-                  fontWeight: 800,
+                  color: 'white',
                   lineHeight: 1.2,
                   mb: 3,
-                  color: 'white',
-                  textShadow: '0 2px 4px rgba(0,0,0,0.3)'
                 }}
               >
-                Create Unforgettable Events
+                Elevate Your Events with Our All-in-One Platform
               </Typography>
               <Typography 
-                variant={isMobile ? 'h6' : 'h5'} 
-                component="h2" 
+                variant="h5" 
+                component="p" 
                 sx={{ 
-                  mb: 4,
-                  color: 'rgba(255,255,255,0.9)',
-                  maxWidth: '90%',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                  mb: 4, 
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  fontWeight: 400,
+                  lineHeight: 1.6,
                 }}
               >
-                The all-in-one platform for seamless event management, from planning to execution.
+                Create unforgettable virtual, hybrid, and in-person events with our comprehensive event management platform.
+                Engage your audience like never before with powerful features designed for success.
               </Typography>
-              
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 4 }}>
-                <AnimatedButton
-                  component={Link}
-                  to="/register"
+                <Button
                   variant="contained"
                   color="secondary"
                   size="large"
+                  onClick={handleGetStarted}
                   endIcon={<ArrowForwardIcon />}
                   sx={{
-                    py: 1.8,
+                    py: 1.5,
                     px: 4,
                     fontSize: '1.1rem',
-                    borderRadius: 2,
+                    borderRadius: 50,
                     textTransform: 'none',
                     fontWeight: 600,
-                    boxShadow: '0 4px 14px 0 rgba(0, 0, 0, 0.2)',
-                  }}
-                >
-                  Get Started Free
-                </AnimatedButton>
-                <AnimatedButton
-                  component={Link}
-                  to="/login"
-                  variant="outlined"
-                  color="inherit"
-                  size="large"
-                  endIcon={<ArrowForwardIcon />}
-                  sx={{
-                    py: 1.8,
-                    px: 4,
-                    borderWidth: 2,
-                    fontSize: '1.1rem',
-                    borderRadius: 2,
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    color: 'white',
-                    borderColor: 'white',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
                     '&:hover': {
-                      borderWidth: 2,
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2)',
                     },
                   }}
                 >
-                  Sign In
-                </AnimatedButton>
+                  {isSignedIn ? 'Go to Dashboard' : 'Start Free Trial'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="inherit"
+                  size="large"
+                  startIcon={<PlayCircleIcon />}
+                  onClick={handleDemoRequest}
+                  sx={{
+                    color: 'white',
+                    borderColor: 'white',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      borderColor: 'white',
+                    },
+                    py: 1.5,
+                    px: 4,
+                    fontSize: '1.1rem',
+                    borderRadius: 50,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                  }}
+                >
+                  Watch Demo
+                </Button>
               </Stack>
               
-              {/* Social Proof */}
-              <Box sx={{ mt: 4, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-                <Box sx={{ display: 'flex' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, mt: 4 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   {[1, 2, 3, 4, 5].map((i) => (
                     <Box 
-                      key={i} 
-                      sx={{ 
-                        width: 40, 
-                        height: 40, 
-                        borderRadius: '50%', 
-                        bgcolor: 'primary.main',
+                      key={i}
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        bgcolor: 'primary.light',
                         ml: i > 1 ? -1.5 : 0,
                         border: '2px solid white',
                         display: 'flex',
@@ -268,163 +278,186 @@ const HomePage = () => {
                         justifyContent: 'center',
                         color: 'white',
                         fontWeight: 'bold',
-                        zIndex: 5 - i
+                        zIndex: 5 - i,
+                        fontSize: '0.875rem',
                       }}
                     >
                       {i}
                     </Box>
                   ))}
                 </Box>
-                <Box>
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                    Trusted by 5,000+ event planners worldwide
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5 }}>
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Box key={star} sx={{ color: '#FFD700', fontSize: '1.1rem' }}>★</Box>
-                    ))}
-                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', ml: 0.5 }}>5.0</Typography>
-                  </Box>
-                </Box>
+                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+                  Trusted by 10,000+ event professionals worldwide
+                </Typography>
               </Box>
+            </Grid>
+            <Grid item xs={12} md={5}>
             </Grid>
             <Grid item xs={12} md={6}>
               <Box 
-                component="img"
-                src={HERO_IMAGE} 
-                alt="Event Management"
                 sx={{
-                  width: '100%',
-                  height: 'auto',
-                  maxWidth: 600,
-                  display: 'block',
-                  mx: 'auto',
+                  position: 'relative',
                   borderRadius: 4,
-                  boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-                  transform: 'translateY(0)',
-                  animation: 'float 8s ease-in-out infinite',
-                  '@keyframes float': {
-                    '0%': { transform: 'translateY(0px)' },
-                    '50%': { transform: 'translateY(-20px)' },
-                    '100%': { transform: 'translateY(0px)' },
+                  overflow: 'hidden',
+                  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'linear-gradient(135deg, rgba(26, 35, 126, 0.3) 0%, rgba(40, 53, 147, 0.3) 100%)',
+                    zIndex: 1,
                   },
                 }}
-              />
+              >
+                <Box
+                  component="img"
+                  src="https://www.vfairs.com/hubfs/vFairs-2021/Images/hero-dashboard.png"
+                  alt="Event Management Platform"
+                  sx={{
+                    width: '100%',
+                    height: 'auto',
+                    display: 'block',
+                    position: 'relative',
+                    zIndex: 0,
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 2,
+                    textAlign: 'center',
+                  }}
+                >
+                  <IconButton
+                    onClick={handleDemoRequest}
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      bgcolor: 'secondary.main',
+                      color: 'white',
+                      '&:hover': {
+                        bgcolor: 'secondary.dark',
+                        transform: 'scale(1.1)',
+                      },
+                      transition: 'all 0.3s',
+                    }}
+                  >
+                    <PlayCircleIcon sx={{ fontSize: 48 }} />
+                  </IconButton>
+                  <Typography variant="subtitle1" color="white" sx={{ mt: 2, fontWeight: 600 }}>
+                    Watch Platform Demo
+                  </Typography>
+                </Box>
+              </Box>
             </Grid>
           </Grid>
         </Container>
       </HeroSection>
 
-      {/* Stats Section */}
-      <Box sx={{ 
-        bgcolor: 'background.paper', 
-        py: { xs: 8, md: 12 },
-        position: 'relative',
-        zIndex: 1,
-        mt: { xs: 0, md: -10 },
-        mb: { xs: 6, md: 12 },
-      }}>
+      {/* Logo Cloud */}
+      <Box sx={{ py: 6, bgcolor: 'background.paper' }}>
         <Container maxWidth="lg">
-          <Grid container spacing={3} justifyContent="center">
-            {stats.map((stat, index) => (
-              <Grid item xs={6} sm={6} md={3} key={index}>
-                <StatCard>
-                  <Box sx={{ mb: 2 }}>{stat.icon}</Box>
-                  <Typography variant="h3" color="primary" fontWeight="bold" gutterBottom>
-                    {stat.value}
-                  </Typography>
-                  <Typography variant="h6" color="textSecondary" fontWeight={500}>
-                    {stat.label}
-                  </Typography>
-                </StatCard>
-              </Grid>
+          <Typography 
+            variant="subtitle2" 
+            textAlign="center" 
+            color="text.secondary"
+            sx={{ mb: 4, textTransform: 'uppercase', letterSpacing: 1, fontWeight: 600 }}
+          >
+            Trusted by Leading Companies Worldwide
+          </Typography>
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: { xs: 4, md: 8 },
+              '& img': {
+                height: 28,
+                opacity: 0.7,
+                transition: 'opacity 0.3s',
+                '&:hover': {
+                  opacity: 1,
+                },
+              }
+            }}
+          >
+            {['microsoft', 'coca-cola', 'unilever', 'ge', 'sap'].map((company) => (
+              <Box 
+                key={company}
+                component="img"
+                src={`https://via.placeholder.com/120x40?text=${company.toUpperCase()}`}
+                alt={company}
+                sx={{ 
+                  filter: 'grayscale(100%)',
+                  '&:hover': {
+                    filter: 'grayscale(0%)',
+                  },
+                }}
+              />
             ))}
-          </Grid>
+          </Box>
         </Container>
       </Box>
 
       {/* Features Section */}
-      <Box id="features" sx={{ py: { xs: 8, md: 12 }, position: 'relative', bgcolor: 'background.default' }}>
+      <Box id="features" sx={{ py: 10, bgcolor: 'background.default' }}>
         <Container maxWidth="lg">
-          <Box textAlign="center" mb={{ xs: 6, md: 10 }}>
+          <Box textAlign="center" maxWidth={800} mx="auto" mb={8}>
             <Typography 
-              variant="overline" 
-              color="primary" 
-              fontWeight="bold"
-              sx={{
-                display: 'inline-block',
-                mb: 2,
-                letterSpacing: 2,
-                fontSize: '0.8rem',
-                textTransform: 'uppercase',
-              }}
-            >
-              Why Choose Us
-            </Typography>
-            <Typography 
-              variant={isMobile ? 'h3' : 'h2'} 
+              variant="h3" 
               component="h2" 
               gutterBottom
-              sx={{
-                fontWeight: 800,
-                mb: 3,
-                lineHeight: 1.2,
+              sx={{ 
+                fontWeight: 700,
+                mb: 2,
               }}
             >
-              Everything You Need to Create
-              <Box component="span" sx={{ color: 'primary.main' }}> Unforgettable Events</Box>
+              All-in-One Event Management Solution
             </Typography>
-            <Typography 
-              variant="h6" 
-              color="textSecondary" 
-              sx={{
-                maxWidth: 700,
-                mx: 'auto',
-                opacity: 0.9,
-                fontWeight: 400,
-              }}
-            >
-              Our comprehensive platform provides all the tools you need to plan, manage, and execute successful events with ease.
+            <Typography variant="h6" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+              Everything you need to plan, promote, and execute successful events of any size or type.
+              Our platform is designed to make event management seamless and efficient.
             </Typography>
           </Box>
-
+          
           <Grid container spacing={4}>
             {features.map((feature, index) => (
               <Grid item xs={12} md={4} key={index}>
                 <FeatureCard>
-                  <FeatureImage
-                    className="feature-image"
-                    component="img"
-                    image={feature.image}
-                    alt={feature.title}
-                  />
-                  <CardContent sx={{ 
-                    flexGrow: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    p: 4,
-                    position: 'relative',
-                    zIndex: 2,
-                  }}>
-                    <Box sx={{ 
-                      width: 60, 
-                      height: 60, 
-                      bgcolor: 'primary.main', 
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      mb: 3,
-                      color: 'white'
-                    }}>
+                  <CardContent sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <FeatureIcon>
                       {feature.icon}
-                    </Box>
-                    <Typography variant="h5" component="h3" gutterBottom sx={{ fontWeight: 700, color: 'text.primary' }}>
+                    </FeatureIcon>
+                    <Typography variant="h5" component="h3" gutterBottom sx={{ fontWeight: 600 }}>
                       {feature.title}
                     </Typography>
-                    <Typography variant="body1" color="textSecondary" sx={{ mb: 3, flexGrow: 1, lineHeight: 1.7 }}>
+                    <Typography color="text.secondary" sx={{ mb: 2, flexGrow: 1 }}>
                       {feature.description}
                     </Typography>
+                    <Button 
+                      color="primary" 
+                      endIcon={<ArrowForwardIcon />}
+                      sx={{ 
+                        alignSelf: 'flex-start', 
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        px: 0,
+                        '&:hover': {
+                          backgroundColor: 'transparent',
+                          textDecoration: 'underline',
+                        },
+                      }}
+                    >
+                      Learn more
+                    </Button>
                   </CardContent>
                 </FeatureCard>
               </Grid>
@@ -433,401 +466,434 @@ const HomePage = () => {
         </Container>
       </Box>
 
-      {/* CTA Section */}
-      <Box 
-        sx={{
-          background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
-          color: 'white',
-          py: { xs: 12, md: 15 },
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1 }}>
-          <Box textAlign="center">
-            <Typography 
-              variant={isMobile ? 'h3' : 'h2'} 
-              component="h2" 
-              gutterBottom
-              sx={{
-                fontWeight: 800,
-                mb: 3,
-                color: 'white'
-              }}
-            >
-              Ready to Get Started?
-            </Typography>
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                mb: 5, 
-                opacity: 0.9,
-                maxWidth: 700,
-                mx: 'auto',
-                lineHeight: 1.7
-              }}
-            >
-              Join thousands of event professionals who trust our platform to make their events unforgettable.
-              Start your free trial today, no credit card required.
-            </Typography>
-            <Button
-              component={Link}
-              to="/register"
-              variant="contained"
-              color="primary"
-              size="large"
-              sx={{
-                bgcolor: 'white',
-                color: theme.palette.secondary.main,
-                px: 6,
-                py: 1.8,
-                fontSize: '1.1rem',
-                fontWeight: 700,
-                boxShadow: '0 4px 14px 0 rgba(0, 0, 0, 0.2)',
-                '&:hover': {
-                  bgcolor: 'white',
-                  boxShadow: '0 6px 20px 0 rgba(0, 0, 0, 0.3)',
-                  transform: 'translateY(-2px)',
-                },
-                transition: 'all 0.3s ease',
-              }}
-            >
-              Start Your Free Trial
-            </Button>
-          </Box>
-        </Container>
-      </Box>
-
-      {/* Contact Section */}
-      <Box sx={{ py: { xs: 10, md: 15 }, bgcolor: 'background.default' }}>
+      {/* How It Works */}
+      <Box sx={{ py: 10, bgcolor: 'background.paper' }}>
         <Container maxWidth="lg">
           <Grid container spacing={6} alignItems="center">
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={6} order={{ xs: 2, md: 1 }}>
               <Typography 
-                variant="overline" 
-                color="primary" 
-                fontWeight="bold"
-                sx={{
-                  display: 'inline-block',
-                  mb: 2,
-                  letterSpacing: 1,
-                }}
-              >
-                Contact Us
-              </Typography>
-              <Typography 
-                variant={isMobile ? 'h3' : 'h2'} 
+                variant="h3" 
                 component="h2" 
                 gutterBottom
-                sx={{
-                  fontWeight: 800,
-                  mb: 3
+                sx={{ 
+                  fontWeight: 700,
+                  mb: 3,
                 }}
               >
-                Get In Touch
+                Simple Setup, Powerful Results
               </Typography>
-              <Typography variant="body1" color="textSecondary" paragraph sx={{ mb: 4, lineHeight: 1.8 }}>
-                Have questions or need assistance? Our team is here to help you with any inquiries about our platform or services.
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
+                Get started quickly with our intuitive platform and start creating amazing events in minutes.
               </Typography>
               
-              <Box sx={{ '& > div': { display: 'flex', alignItems: 'center', mb: 2.5 } }}>
-                <Box>
-                  <EmailIcon color="primary" sx={{ mr: 2, fontSize: 24 }} />
-                </Box>
-                <Typography>support@eventmanager.com</Typography>
-              </Box>
-              <Box sx={{ '& > div': { display: 'flex', alignItems: 'center', mb: 2.5 } }}>
-                <Box>
-                  <PhoneIcon color="primary" sx={{ mr: 2, fontSize: 24 }} />
-                </Box>
-                <Typography>+1 (555) 123-4567</Typography>
-              </Box>
-              <Box sx={{ '& > div': { display: 'flex', alignItems: 'flex-start' } }}>
-                <Box>
-                  <LocationIcon color="primary" sx={{ mr: 2, mt: 0.5, fontSize: 24 }} />
-                </Box>
-                <Typography>
-                  123 Event Street<br />
-                  San Francisco, CA 94107<br />
-                  United States
-                </Typography>
-              </Box>
+              <List sx={{ '& .MuiListItem-root': { px: 0, py: 1.5 } }}>
+                {[
+                  { icon: <CheckCircleIcon color="primary" />, text: 'No technical skills required' },
+                  { icon: <CheckCircleIcon color="primary" />, text: 'Drag-and-drop interface' },
+                  { icon: <CheckCircleIcon color="primary" />, text: 'Pre-built templates' },
+                  { icon: <CheckCircleIcon color="primary" />, text: '24/7 customer support' },
+                ].map((item, index) => (
+                  <ListItem key={index}>
+                    <ListItemIcon sx={{ minWidth: 36 }}>
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={item.text}
+                      primaryTypographyProps={{ variant: 'h6' }}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+              
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={handleGetStarted}
+                endIcon={<ArrowForwardIcon />}
+                sx={{
+                  mt: 2,
+                  py: 1.5,
+                  px: 4,
+                  fontSize: '1.1rem',
+                  borderRadius: 50,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                }}
+              >
+                Get Started Now
+              </Button>
             </Grid>
-            <Grid item xs={12} md={6}>
-              <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-                <Typography variant="h5" component="h3" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
-                  Send us a Message
-                </Typography>
-                <form>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        fullWidth
-                        label="Your Name"
-                        variant="outlined"
-                        size="small"
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        fullWidth
-                        label="Email Address"
-                        variant="outlined"
-                        size="small"
-                        type="email"
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        fullWidth
-                        label="Subject"
-                        variant="outlined"
-                        size="small"
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        fullWidth
-                        label="Your Message"
-                        variant="outlined"
-                        multiline
-                        rows={4}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Button 
-                        variant="contained" 
-                        color="primary" 
-                        size="large"
-                        fullWidth
-                        sx={{ py: 1.5 }}
-                      >
-                        Send Message
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </form>
-              </Paper>
+            <Grid item xs={12} md={6} order={{ xs: 1, md: 2 }}>
+              <Box 
+                sx={{
+                  position: 'relative',
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+                  border: '1px solid rgba(0, 0, 0, 0.05)',
+                }}
+              >
+                <img 
+                  src="https://www.vfairs.com/hubfs/vFairs-2021/Images/features-showcase-2.png" 
+                  alt="Event Platform Interface"
+                  style={{ width: '100%', display: 'block' }}
+                />
+              </Box>
             </Grid>
           </Grid>
         </Container>
       </Box>
 
-      {/* CTA Section */}
-      <Box sx={{ 
-        py: { xs: 10, md: 15 }, 
-        bgcolor: 'primary.main', 
-        color: 'white',
-        position: 'relative',
-        overflow: 'hidden',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.9)} 0%, ${alpha(theme.palette.primary.dark, 0.9)} 100%)`,
-          zIndex: 1,
-        }
-      }}>
-        <Container maxWidth="md" sx={{ position: 'relative', zIndex: 2 }}>
-          <Box textAlign="center">
-            <Typography variant="h3" component="h2" gutterBottom sx={{ fontWeight: 800, mb: 3 }}>
-              Ready to Plan Your Next Event?
-            </Typography>
-            <Typography variant="h6" sx={{ mb: 6, opacity: 0.9, maxWidth: 700, mx: 'auto' }}>
-              Join thousands of event professionals who trust our platform to create memorable experiences.
-            </Typography>
-            <AnimatedButton
-              component={Link}
-              to="/register"
-              variant="contained"
-              color="secondary"
-              size="large"
-              endIcon={<ArrowForwardIcon />}
-              sx={{
-                py: 1.8,
-                px: 6,
-                fontSize: '1.1rem',
-                borderRadius: 2,
-                textTransform: 'none',
-                fontWeight: 600,
-                boxShadow: '0 4px 14px 0 rgba(0, 0, 0, 0.2)',
+      {/* Testimonials */}
+      <Box sx={{ py: 10, bgcolor: 'primary.main', color: 'white' }}>
+        <Container maxWidth="lg">
+          <Box textAlign="center" maxWidth={800} mx="auto" mb={8}>
+            <Typography 
+              variant="h3" 
+              component="h2" 
+              gutterBottom
+              sx={{ 
+                fontWeight: 700,
+                mb: 3,
+                color: 'white',
               }}
             >
-              Get Started Free
-            </AnimatedButton>
+              Loved by Event Professionals
+            </Typography>
+            <Typography variant="h6" sx={{ opacity: 0.9 }}>
+              Join thousands of event organizers who trust our platform to power their events.
+            </Typography>
           </Box>
+          
+          <Grid container spacing={4}>
+            {[1, 2, 3].map((item) => (
+              <Grid item xs={12} md={4} key={item}>
+                <Paper 
+                  elevation={0}
+                  sx={{
+                    p: 4,
+                    height: '100%',
+                    borderRadius: 4,
+                    bgcolor: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', mb: 2 }}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <StarIcon key={star} sx={{ color: '#FFD700', mr: 0.5 }} />
+                    ))}
+                  </Box>
+                  <Typography variant="body1" sx={{ mb: 3, fontStyle: 'italic' }}>
+                    "The platform is incredibly intuitive and our attendees loved the experience. 
+                    The support team was exceptional throughout our entire event journey."
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box 
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: '50%',
+                        bgcolor: 'rgba(255, 255, 255, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mr: 2,
+                      }}
+                    >
+                      <PersonIcon />
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight={600}>
+                        Sarah Johnson
+                      </Typography>
+                      <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                        Event Director, TechConf 2023
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* FAQ Section */}
+      <Box sx={{ py: 10, bgcolor: 'background.paper' }}>
+        <Container maxWidth="md">
+          <Box textAlign="center" mb={8}>
+            <Typography 
+              variant="h3" 
+              component="h2" 
+              gutterBottom
+              sx={{ 
+                fontWeight: 700,
+                mb: 3,
+              }}
+            >
+              Frequently Asked Questions
+            </Typography>
+            <Typography variant="h6" color="text.secondary">
+              Find answers to common questions about our platform and services.
+            </Typography>
+          </Box>
+          
+          <Box>
+            {faqs.map((faq, index) => (
+              <StyledAccordion 
+                key={index} 
+                expanded={expanded === `panel${index}`}
+                onChange={handleAccordionChange(`panel${index}`)}
+              >
+                <StyledAccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls={`panel${index}bh-content`}
+                  id={`panel${index}bh-header`}
+                >
+                  <Typography variant="h6" sx={{ flexShrink: 0 }}>
+                    {faq.question}
+                  </Typography>
+                </StyledAccordionSummary>
+                <AccordionDetails>
+                  <Typography color="text.secondary">
+                    {faq.answer}
+                  </Typography>
+                </AccordionDetails>
+              </StyledAccordion>
+            ))}
+          </Box>
+        </Container>
+      </Box>
+
+      {/* CTA Section */}
+      <Box sx={{ py: 10, bgcolor: 'background.default' }}>
+        <Container maxWidth="md">
+          <Box 
+            sx={{
+              p: 6,
+              borderRadius: 4,
+              bgcolor: 'primary.main',
+              color: 'white',
+              textAlign: 'center',
+              backgroundImage: 'linear-gradient(135deg, #1a237e 0%, #283593 100%)',
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+                background: 'url(https://www.vfairs.com/hubfs/Backgrounds/hero-bg-2.png)',
+                backgroundSize: 'cover',
+                opacity: 0.1,
+                zIndex: 1,
+              },
+            }}
+          >
+            <Box position="relative" zIndex={2}>
+              <Typography 
+                variant="h3" 
+                component="h2" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 700,
+                  mb: 3,
+                }}
+              >
+                Ready to Transform Your Events?
+              </Typography>
+              <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
+                Join thousands of event professionals who trust our platform to create 
+                unforgettable experiences.
+              </Typography>
+              <Stack 
+                direction={{ xs: 'column', sm: 'row' }} 
+                spacing={2} 
+                justifyContent="center"
+                sx={{ mt: 4 }}
+              >
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  size="large"
+                  onClick={handleGetStarted}
+                  endIcon={<ArrowForwardIcon />}
+                  sx={{
+                    py: 1.8,
+                    px: 6,
+                    fontSize: '1.1rem',
+                    borderRadius: 50,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+                    '&:hover': {
+                      boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)',
+                      transform: 'translateY(-2px)',
+                    },
+                  }}
+                >
+                  {isSignedIn ? 'Go to Dashboard' : 'Start Free Trial'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="inherit"
+                  size="large"
+                  onClick={handleDemoRequest}
+                  startIcon={<PhoneIcon />}
+                  sx={{
+                    color: 'white',
+                    borderColor: 'white',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      borderColor: 'white',
+                    },
+                    py: 1.8,
+                    px: 6,
+                    fontSize: '1.1rem',
+                    borderRadius: 50,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                  }}
+                >
+                  Request a Demo
+                </Button>
+              </Stack>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
+
+      {/* Call to Action */}
+      <Box sx={{ py: 10, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
+        <Container maxWidth="md" sx={{ textAlign: 'center' }}>
+          <Typography variant="h3" component="h2" gutterBottom>
+            Ready to get started?
+          </Typography>
+          <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
+            Join thousands of event professionals who trust our platform
+          </Typography>
+          <Button
+            variant="contained"
+            color="secondary"
+            size="large"
+            onClick={handleGetStarted}
+            endIcon={<ArrowForwardIcon />}
+            sx={{
+              py: 1.5,
+              px: 6,
+              fontSize: '1.1rem',
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)',
+              },
+            }}
+          >
+            {isSignedIn ? 'Go to Dashboard' : 'Start Free Trial'}
+          </Button>
         </Container>
       </Box>
 
       {/* Footer */}
-      <Box component="footer" sx={{ bgcolor: 'background.paper', py: 6, borderTop: '1px solid', borderColor: 'divider' }}>
+      <Box component="footer" sx={{ py: 6, bgcolor: 'background.paper' }}>
         <Container maxWidth="lg">
           <Grid container spacing={4}>
             <Grid item xs={12} md={4}>
-              <Typography variant="h6" color="primary" fontWeight="bold" gutterBottom>
+              <Typography variant="h6" gutterBottom>
                 EventPro
               </Typography>
-              <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
+              <Typography variant="body2" color="text.secondary">
                 The all-in-one platform for seamless event management, from planning to execution.
               </Typography>
-              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                {socialLinks.map((social, index) => (
-                  <IconButton
-                    key={index}
-                    component="a"
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                      color: 'text.secondary',
-                      '&:hover': {
-                        color: 'primary.main',
-                        backgroundColor: 'rgba(25, 118, 210, 0.04)',
-                      },
-                    }}
-                  >
-                    {social.icon}
-                  </IconButton>
-                ))}
-              </Box>
             </Grid>
-            <Grid item xs={6} sm={3} md={2}>
-              <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+            <Grid item xs={6} md={2}>
+              <Typography variant="subtitle1" gutterBottom>
                 Product
               </Typography>
               <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
-                {['Features', 'Pricing', 'Integrations', 'Updates', 'Roadmap'].map((item) => (
-                  <Box key={item} component="li" sx={{ mb: 1 }}>
-                    <Button
-                      component={Link}
+                {['Features', 'Pricing', 'Integrations', 'Updates'].map((item) => (
+                  <li key={item}>
+                    <Typography 
+                      component={Link} 
                       to={`/${item.toLowerCase()}`}
-                      sx={{
-                        color: 'text.secondary',
-                        textTransform: 'none',
-                        p: 0,
-                        justifyContent: 'flex-start',
-                        '&:hover': {
-                          color: 'primary.main',
-                          backgroundColor: 'transparent',
-                        },
+                      color="text.secondary"
+                      sx={{ 
+                        display: 'block', 
+                        py: 0.5,
+                        textDecoration: 'none',
+                        '&:hover': { color: 'primary.main' }
                       }}
                     >
                       {item}
-                    </Button>
-                  </Box>
+                    </Typography>
+                  </li>
                 ))}
               </Box>
             </Grid>
-            <Grid item xs={6} sm={3} md={2}>
-              <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+            <Grid item xs={6} md={2}>
+              <Typography variant="subtitle1" gutterBottom>
                 Company
               </Typography>
               <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
-                {['About', 'Blog', 'Careers', 'Press', 'Partners'].map((item) => (
-                  <Box key={item} component="li" sx={{ mb: 1 }}>
-                    <Button
-                      component={Link}
+                {['About', 'Blog', 'Careers', 'Contact'].map((item) => (
+                  <li key={item}>
+                    <Typography 
+                      component={Link} 
                       to={`/${item.toLowerCase()}`}
-                      sx={{
-                        color: 'text.secondary',
-                        textTransform: 'none',
-                        p: 0,
-                        justifyContent: 'flex-start',
-                        '&:hover': {
-                          color: 'primary.main',
-                          backgroundColor: 'transparent',
-                        },
+                      color="text.secondary"
+                      sx={{ 
+                        display: 'block', 
+                        py: 0.5,
+                        textDecoration: 'none',
+                        '&:hover': { color: 'primary.main' }
                       }}
                     >
                       {item}
-                    </Button>
-                  </Box>
+                    </Typography>
+                  </li>
                 ))}
               </Box>
             </Grid>
-            <Grid item xs={6} sm={3} md={2}>
-              <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                Resources
+            <Grid item xs={12} md={4}>
+              <Typography variant="subtitle1" gutterBottom>
+                Stay Updated
               </Typography>
-              <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
-                {['Help Center', 'Tutorials', 'Templates', 'Community', 'Events'].map((item) => (
-                  <Box key={item} component="li" sx={{ mb: 1 }}>
-                    <Button
-                      component={Link}
-                      to={`/${item.toLowerCase().replace(' ', '-')}`}
-                      sx={{
-                        color: 'text.secondary',
-                        textTransform: 'none',
-                        p: 0,
-                        justifyContent: 'flex-start',
-                        '&:hover': {
-                          color: 'primary.main',
-                          backgroundColor: 'transparent',
-                        },
-                      }}
-                    >
-                      {item}
-                    </Button>
-                  </Box>
-                ))}
-              </Box>
-            </Grid>
-            <Grid item xs={6} sm={3} md={2}>
-              <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                Legal
+              <Typography variant="body2" color="text.secondary" mb={2}>
+                Subscribe to our newsletter for the latest updates and news.
               </Typography>
-              <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
-                {['Privacy', 'Terms', 'Security', 'Cookies', 'Licenses'].map((item) => (
-                  <Box key={item} component="li" sx={{ mb: 1 }}>
-                    <Button
-                      component={Link}
-                      to={`/legal/${item.toLowerCase()}`}
-                      sx={{
-                        color: 'text.secondary',
-                        textTransform: 'none',
-                        p: 0,
-                        justifyContent: 'flex-start',
-                        '&:hover': {
-                          color: 'primary.main',
-                          backgroundColor: 'transparent',
-                        },
-                      }}
-                    >
-                      {item}
-                    </Button>
-                  </Box>
-                ))}
+              <Box component="form" sx={{ display: 'flex', gap: 1 }}>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  style={{
+                    flex: 1,
+                    padding: '12px 16px',
+                    borderRadius: 8,
+                    border: '1px solid #e0e0e0',
+                    fontSize: '0.9375rem',
+                  }}
+                />
+                <Button 
+                  type="submit" 
+                  variant="contained" 
+                  color="primary"
+                  sx={{ whiteSpace: 'nowrap' }}
+                >
+                  Subscribe
+                </Button>
               </Box>
             </Grid>
           </Grid>
-          <Divider sx={{ my: 4 }} />
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="body2" color="text.secondary">
+          <Box sx={{ mt: 6, pt: 4, borderTop: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="body2" color="text.secondary" textAlign="center">
               © {new Date().getFullYear()} EventPro. All rights reserved.
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2, mt: { xs: 2, sm: 0 } }}>
-              <Typography 
-                component={Link} 
-                to="/privacy" 
-                variant="body2" 
-                color="text.secondary"
-                sx={{ '&:hover': { color: 'primary.main' } }}
-              >
-                Privacy Policy
-              </Typography>
-              <Typography 
-                component={Link} 
-                to="/terms" 
-                variant="body2" 
-                color="text.secondary"
-                sx={{ '&:hover': { color: 'primary.main' } }}
-              >
-                Terms of Service
-              </Typography>
-            </Box>
           </Box>
         </Container>
       </Box>

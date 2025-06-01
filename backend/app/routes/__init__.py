@@ -3,7 +3,7 @@ from flask_restx import Api
 from flask_cors import CORS
 
 # Import route modules here
-from . import auth, events, users, venues, tasks, budget
+from . import auth, events, users, venues, tasks, budget, ai
 
 api_bp = Blueprint('api', __name__)
 CORS(api_bp, resources={r"/*": {"origins": "*"}})
@@ -19,6 +19,10 @@ def create_api(blueprint):
     
     # Add namespaces
     from .auth import api as auth_ns
+    from .ai import bp as ai_bp
+    
+    # Register blueprints
+    blueprint.register_blueprint(ai_bp)
     from .events import api as events_ns
     from .users import api as users_ns
     from .venues import api as venues_ns

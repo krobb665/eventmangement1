@@ -1,11 +1,23 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import { Provider } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ClerkProvider, SignedIn } from '@clerk/clerk-react';
+import { 
+  ClerkProvider, 
+  SignedIn,
+  SignIn,
+  SignUp,
+  UserProfile,
+  RedirectToSignIn,
+  RedirectToSignUp,
+  SignedOut,
+  useAuth
+} from '@clerk/clerk-react';
 
 // Store
 import store from './store/store';
@@ -295,17 +307,129 @@ const AppRoutes = () => {
   );
 };
 
-// App Component
-const App = () => {
+// Clerk Pages Wrapper
+const ClerkWithRouter = () => {
+  const { isLoaded, isSignedIn } = useAuth();
+  const navigate = useNavigate();
+
+  // Handle Clerk navigation
+  React.useEffect(() => {
+    if (isLoaded) {
+      // Clerk is ready
+      window.Clerk = window.Clerk || {};
+      window.Clerk.navigate = (to) => navigate(to);
+    }
+  }, [isLoaded, navigate]);
+
+  // Show loading state while Clerk is initializing
+  if (!isLoaded) {
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '100vh',
+        backgroundColor: 'background.default'
+      }}>
+        <CircularProgress size={60} thickness={4} />
+      </Box>
+    );
+  }
+
   return (
-    <ClerkProvider {...clerkConfig}>
-      <Provider store={store}>
+    <Routes>
+      {/* Public routes */}
+      <Route path="/" element={
+        <>
+          <SignedIn>
+            <Navigate to="/dashboard" replace />
+          </SignedIn>
+          <SignedOut>
+            <HomePage />
+          </SignedOut>
+        </>
+      } />
+      
+      {/* Clerk hosted pages */}
+      <Route
+        path="/sign-in/*"
+        element={
+          <SignedOut>
+            <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '2rem' }}>
+              <SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" />
+            </div>
+          </SignedOut>
+        }
+      />
+      <Route
+        path="/sign-up/*"
+        element={
+          <SignedOut>
+            <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '2rem' }}>
+              <SignUp routing="path" path="/sign-up" signInUrl="/sign-in" />
+            </div>
+          </SignedOut>
+        }
+      />
+      <Route
+        path="/user/*"
+        element={
+          <SignedIn>
+            <div style={{ maxWidth: '800px', margin: '2rem auto', padding: '0 1rem', minHeight: '100vh' }}>
+              <UserProfile routing="path" path="/user" />
+            </div>
+          </SignedIn>
+        }
+      />
+      
+      {/* Protected routes */}
+      <Route
+        path="/dashboard"
+        element={
+          <SignedIn>
+            <MainLayout>
+              <DashboardPage />
+            </MainLayout>
+          </SignedIn>
+        }
+      />
+      
+      {/* App routes - only accessible when signed in */}
+      <Route
+        path="/*"
+        element={
+          <SignedIn>
+            <MainLayout>
+              <AppRoutes />
+            </MainLayout>
+          </SignedIn>
+        }
+      />
+      
+      {/* Redirect unauthenticated users to sign-in */}
+      <Route
+        path="*"
+        element={
+          <SignedOut>
+            <RedirectToSignIn />
+          </SignedOut>
+        }
+      />
+    </Routes>
+  );
+};
+
+// App Component
+function App() {
+  return (
+    <Provider store={store}>
+      <ClerkProvider {...clerkConfig}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <WebSocketManager>
-            <AppRoutes />
-            <ToastContainer
-              position="top-right"
+            <ClerkWithRouter />
+            <ToastContainer 
+              position="bottom-right"
               autoClose={5000}
               hideProgressBar={false}
               newestOnTop={false}
@@ -318,8 +442,8 @@ const App = () => {
             />
           </WebSocketManager>
         </ThemeProvider>
-      </Provider>
-    </ClerkProvider>
+      </ClerkProvider>
+    </Provider>
   );
 };
 

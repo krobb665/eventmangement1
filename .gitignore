@@ -7,6 +7,8 @@ __pycache__/
 # Virtual Environment
 venv/
 ENV/
+backend/venv/
+backend/ENV/
 
 # Environment variables
 .env
@@ -18,17 +20,71 @@ ENV/
 # Build files
 /build
 /dist
+/frontend/build
+/frontend/dist
 
 # Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Python
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Firebase
+.firebase/
+.firebaserc
+firebase-debug.log
+firebase-debug.*.log
+
 # Editor directories and files
-.idea
-.vscode
+.idea/
+.vscode/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.DS_Store
+
+# IDE specific files
+*.sublime-workspace
+*.sublime-project
+
+# Testing
+/coverage
+
+# Production
+/backend/instance/
+
+# Local development
+*.local
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+Thumbs.db

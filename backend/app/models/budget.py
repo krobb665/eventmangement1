@@ -78,6 +78,36 @@ class Budget(db.Model):
         self.total_budget = result.total_estimated or 0
         self.actual_spent = result.total_actual or 0
 
+class Expense(db.Model):
+    __tablename__ = 'expenses'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    budget_item_id = db.Column(db.Integer, db.ForeignKey('budget_items.id'), nullable=False)
+    amount = db.Column(db.Numeric(10, 2), nullable=False)
+    date_incurred = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+    receipt_url = db.Column(db.String(255))
+    description = db.Column(db.Text)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    budget_item = db.relationship('BudgetItem', back_populates='expenses')
+    creator = db.relationship('User', foreign_keys=[created_by])
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'budget_item_id': self.budget_item_id,
+            'amount': float(self.amount) if self.amount else 0,
+            'date_incurred': self.date_incurred.isoformat() if self.date_incurred else None,
+            'receipt_url': self.receipt_url,
+            'description': self.description,
+            'created_by': self.created_by,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
 class BudgetItem(db.Model):
     __tablename__ = 'budget_items'
     
@@ -100,6 +130,7 @@ class BudgetItem(db.Model):
     # Relationships
     budget = db.relationship('Budget', back_populates='items')
     vendor = db.relationship('User')
+    expenses = db.relationship('Expense', back_populates='budget_item', cascade='all, delete-orphan')
     
     def to_dict(self):
         return {

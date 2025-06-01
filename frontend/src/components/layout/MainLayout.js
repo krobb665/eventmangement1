@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Box, AppBar, Toolbar, Container, CssBaseline, Typography } from '@mui/material';
-import UserButton from '../auth/UserButton';
+import { Box, Container, CssBaseline, Typography } from '@mui/material';
+import Navbar from '../Navbar';
 
 const MainLayout = () => {
   return (
@@ -9,19 +9,7 @@ const MainLayout = () => {
       <CssBaseline />
       
       {/* Header */}
-      <AppBar position="static" elevation={0} color="default">
-        <Toolbar>
-          <Box sx={{ flexGrow: 1 }}>
-            <img 
-              src="/logo192.png" 
-              alt="Logo" 
-              style={{ height: 40, cursor: 'pointer' }} 
-              onClick={() => window.location.href = '/'}
-            />
-          </Box>
-          <UserButton />
-        </Toolbar>
-      </AppBar>
+      <Navbar />
       
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, py: 4 }}>

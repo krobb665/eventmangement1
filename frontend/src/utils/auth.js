@@ -1,6 +1,26 @@
 // Clerk configuration
 export const clerkConfig = {
-  publishableKey: process.env.REACT_APP_CLERK_PUBLISHABLE_KEY || 'pk_test_ZnVuLWZsZWEtNzAuY2xlcmsuYWNjb3VudHMuZGV2JA',
+  // Production publishable key
+  publishableKey: process.env.REACT_APP_CLERK_PUBLISHABLE_KEY,
+  // Custom domain for production
+  domain: process.env.REACT_APP_CLERK_DOMAIN,
+  // Enable Clerk's hosted pages
+  signInUrl: process.env.REACT_APP_CLERK_SIGN_IN_URL,
+  signUpUrl: process.env.REACT_APP_CLERK_SIGN_UP_URL,
+  afterSignInUrl: process.env.REACT_APP_CLERK_AFTER_SIGN_IN_URL,
+  afterSignUpUrl: process.env.REACT_APP_CLERK_AFTER_SIGN_UP_URL,
+  // Enable Clerk's account portal
+  userProfileUrl: '/user',
+  // Appearance settings
+  appearance: {
+    variables: {
+      colorPrimary: '#1976d2', // Match your theme's primary color
+    },
+  },
+  // Enable production mode
+  isSatellite: false,
+  // Enable debug mode in development
+  debug: process.env.NODE_ENV === 'development',
 };
 
 // Note: These functions should be used in a React component with ClerkProvider
