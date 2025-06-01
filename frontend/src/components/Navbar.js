@@ -13,11 +13,11 @@ import {
   Divider,
   Tooltip,
 } from '@mui/material';
-import { useAuth, UserButton, useUser } from '@clerk/clerk-react';
+import { useAuth, UserButton } from '@clerk/clerk-react'; // Added UserButton
 
 const Navbar = () => {
   const { isSignedIn } = useAuth();
-  const { user } = useUser();
+  // User object is available via useUser() if needed
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
 

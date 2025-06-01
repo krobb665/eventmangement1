@@ -10,13 +10,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import { 
   ClerkProvider, 
   SignedIn,
-  SignIn,
-  SignUp,
+  SignIn, 
+  SignUp, 
   UserProfile,
   RedirectToSignIn,
-  RedirectToSignUp,
   SignedOut,
-  useAuth
+  useAuth 
 } from '@clerk/clerk-react';
 
 // Store
@@ -309,7 +308,7 @@ const AppRoutes = () => {
 
 // Clerk Pages Wrapper
 const ClerkWithRouter = () => {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded } = useAuth();
   const navigate = useNavigate();
 
   // Handle Clerk navigation

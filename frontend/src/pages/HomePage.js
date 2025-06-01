@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth, useUser } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/clerk-react';
 import { 
   Box, 
   Button, 
@@ -9,22 +9,18 @@ import {
   Grid, 
   useTheme,
   useMediaQuery,
-  Stack,
   Card,
   CardContent,
-  CardMedia,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
-  TextField,
-  InputAdornment,
   IconButton,
   Paper,
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Stack,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { 
@@ -35,7 +31,6 @@ import {
   Person as PersonIcon,
   People as PeopleIcon,
   BarChart as BarChartIcon,
-  Email as EmailIcon,
   Phone as PhoneIcon,
   ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
